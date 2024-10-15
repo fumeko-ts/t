@@ -5,14 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minecraft Bedrock UI Visualizer</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #2d2d2d; color: #ccc; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #2d2d2d;
+            color: #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
         .container { max-width: 800px; width: 100%; }
         .json-input { width: 100%; height: 150px; margin-bottom: 20px; }
-        .visualization { border: 1px solid #444; background: #3c3c3c; padding: 20px; display: flex; flex-wrap: wrap; }
-        .element { border: 1px solid #555; background: #4a4a4a; padding: 10px; margin: 10px; border-radius: 4px; }
-        .button { display: inline-block; padding: 10px 20px; margin: 10px 0; background: #d80607; color: white; text-align: center; border-radius: 4px; cursor: pointer; }
-        .panel { border: 1px solid #666; background: #555; padding: 15px; border-radius: 8px; }
-        .label { font-weight: bold; }
+        .visualization {
+            border: 1px solid #444;
+            background: #3c3c3c;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            background: #d80607;
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .panel {
+            border: 1px solid #666;
+            background: #555;
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 100px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .label {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -42,31 +77,26 @@
                 data.forEach(item => parseElement(item, parentElement));
             } else if (typeof data === 'object') {
                 const element = document.createElement('div');
-                element.className = 'element';
-                parentElement.appendChild(element);
 
-                if (data.type) {
-                    element.classList.add(data.type);
+                if (data.type === 'button') {
+                    element.className = 'button';
+                    element.innerHTML = data.text || 'Button';
+                } else if (data.type === 'panel') {
+                    element.className = 'panel';
+                    element.innerHTML = data.text || 'Panel';
+                } else if (data.type === 'label') {
+                    element.className = 'label';
+                    element.innerHTML = data.text || 'Label';
+                } else {
+                    element.className = 'element';
                 }
+
+                parentElement.appendChild(element);
 
                 Object.keys(data).forEach(key => {
                     const value = data[key];
-                    if (key === 'type') {
-                        if (value === 'button') {
-                            element.innerHTML = '<div class="button">Button</div>';
-                        } else if (value === 'panel') {
-                            element.innerHTML = '<div class="panel">Panel</div>';
-                        } else if (value === 'label') {
-                            element.innerHTML = `<div class="label">${data.text || 'Label'}</div>`;
-                        }
-                    } else {
-                        const keyValueElement = document.createElement('div');
-                        keyValueElement.innerHTML = `<strong>${key}:</strong> ${JSON.stringify(value)}`;
-                        element.appendChild(keyValueElement);
-
-                        if (typeof value === 'object') {
-                            parseElement(value, keyValueElement);
-                        }
+                    if (typeof value === 'object' && key !== 'type') {
+                        parseElement(value, element);
                     }
                 });
             }
