@@ -11,6 +11,8 @@
         .visualization { border: 1px solid #444; background: #3c3c3c; padding: 20px; display: flex; flex-wrap: wrap; }
         .element { border: 1px solid #555; background: #4a4a4a; padding: 10px; margin: 10px; border-radius: 4px; }
         .button { display: inline-block; padding: 10px 20px; margin: 10px 0; background: #d80607; color: white; text-align: center; border-radius: 4px; cursor: pointer; }
+        .panel { border: 1px solid #666; background: #555; padding: 15px; border-radius: 8px; }
+        .label { font-weight: bold; }
     </style>
 </head>
 <body>
@@ -43,24 +45,28 @@
                 element.className = 'element';
                 parentElement.appendChild(element);
 
+                if (data.type) {
+                    element.classList.add(data.type);
+                }
+
                 Object.keys(data).forEach(key => {
                     const value = data[key];
                     if (key === 'type') {
-                        element.innerHTML = `<strong>${value}</strong>`;
                         if (value === 'button') {
-                            element.style.background = '#d80607';
-                            element.style.color = '#fff';
-                            element.style.padding = '10px 20px';
-                            element.style.borderRadius = '4px';
-                            element.style.textAlign = 'center';
+                            element.innerHTML = '<div class="button">Button</div>';
+                        } else if (value === 'panel') {
+                            element.innerHTML = '<div class="panel">Panel</div>';
+                        } else if (value === 'label') {
+                            element.innerHTML = `<div class="label">${data.text || 'Label'}</div>`;
                         }
-                    }
-                    if (typeof value === 'object') {
-                        parseElement(value, element);
                     } else {
                         const keyValueElement = document.createElement('div');
-                        keyValueElement.innerHTML = `<strong>${key}:</strong> ${value}`;
+                        keyValueElement.innerHTML = `<strong>${key}:</strong> ${JSON.stringify(value)}`;
                         element.appendChild(keyValueElement);
+
+                        if (typeof value === 'object') {
+                            parseElement(value, keyValueElement);
+                        }
                     }
                 });
             }
