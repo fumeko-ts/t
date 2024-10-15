@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Bedrock UI Visualizer</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #2d2d2d; color: #ccc; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { max-width: 800px; width: 100%; }
+        .json-input { width: 100%; height: 150px; margin-bottom: 20px; }
+        .visualization { border: 1px solid #444; background: #3c3c3c; padding: 20px; display: flex; flex-wrap: wrap; }
+        .element { border: 1px solid #555; background: #4a4a4a; padding: 10px; margin: 10px; border-radius: 4px; }
+        .button { display: inline-block; padding: 10px 20px; margin: 10px 0; background: #d80607; color: white; text-align: center; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Minecraft Bedrock UI Visualizer</h1>
+        <textarea class="json-input" placeholder="Paste your JSON UI code here..."></textarea>
+        <div class="button" onclick="visualizeJSON()">Visualize</div>
+        <div class="visualization" id="visualization"></div>
+    </div>
+
+    <script>
+        function visualizeJSON() {
+            const jsonInput = document.querySelector('.json-input').value;
+            const visualization = document.getElementById('visualization');
+            visualization.innerHTML = '';
+
+            try {
+                const jsonData = JSON.parse(jsonInput);
+                parseElement(jsonData, visualization);
+            } catch (e) {
+                visualization.innerHTML = '<div class="element">Invalid JSON!</div>';
+            }
+        }
+
+        function parseElement(data, parentElement) {
+            if (Array.isArray(data)) {
+                data.forEach(item => parseElement(item, parentElement));
+            } else if (typeof data === 'object') {
+                const element = document.createElement('div');
+                element.className = 'element';
+                parentElement.appendChild(element);
+
+                Object.keys(data).forEach(key => {
+                    const value = data[key];
+                    if (key === 'type') {
+                        element.innerHTML = `<strong>${value}</strong>`;
+                        if (value === 'button') {
+                            element.style.background = '#d80607';
+                            element.style.color = '#fff';
+                            element.style.padding = '10px 20px';
+                            element.style.borderRadius = '4px';
+                            element.style.textAlign = 'center';
+                        }
+                    }
+                    if (typeof value === 'object') {
+                        parseElement(value, element);
+                    } else {
+                        const keyValueElement = document.createElement('div');
+                        keyValueElement.innerHTML = `<strong>${key}:</strong> ${value}`;
+                        element.appendChild(keyValueElement);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
