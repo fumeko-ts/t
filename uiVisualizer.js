@@ -22,14 +22,17 @@ function visualizeJSON() {
 function createElement(type, text = '') {
     const element = document.createElement('div');
     element.className = type;
-    element.textContent = text;
+    if (text) {
+        const textNode = document.createTextNode(text);
+        element.appendChild(textNode);
+    }
     return element;
 }
 
 function parseElement(data, parentElement) {
     if (Array.isArray(data)) {
         data.forEach(item => parseElement(item, parentElement));
-    } else if (typeof data === 'object') {
+    } else if (typeof data === 'object' && data.type) {
         let element;
 
         switch (data.type) {
@@ -54,7 +57,8 @@ function parseElement(data, parentElement) {
                 element.style.backgroundImage = `url(${data.texture})`;
                 break;
             default:
-                element = createElement('element', JSON.stringify(data));
+                element = createElement('element');
+                element.textContent = JSON.stringify(data, null, 2);
                 break;
         }
 
@@ -62,6 +66,8 @@ function parseElement(data, parentElement) {
             applyLayoutProperties(element, data);
             parentElement.appendChild(element);
         }
+    } else {
+        parentElement.appendChild(document.createTextNode(JSON.stringify(data, null, 2)));
     }
 }
 
